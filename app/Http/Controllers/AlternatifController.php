@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alternatif;
+use App\Models\Kriteria;
+use App\Models\NilaiAlternatif;
 use Illuminate\Http\Request;
 
 class AlternatifController extends Controller
@@ -13,8 +15,17 @@ class AlternatifController extends Controller
     public function index()
     {
         $title = "Data Alternatif";
-        $alternatifs = Alternatif::all();
-        return view('alternatif.index')->with(compact('title', 'alternatifs'));
+        $alternatifs = Alternatif::with('NilaiAlternatif.Kriteria')->get();
+        foreach ($alternatifs as $alternatif) {
+            $nilaiString = $alternatif->NilaiAlternatif->map(function ($nilaiAlternatif) {
+                return $nilaiAlternatif->kriteria->nama . ': ' . $nilaiAlternatif->nilai;
+            })->implode(', ');
+
+            $alternatif->nilaiString = $nilaiString;
+        }
+        $kriteria = Kriteria::all();
+
+        return view('alternatif.index')->with(compact('title', 'alternatifs', 'kriteria'));
     }
 
     /**
@@ -34,11 +45,26 @@ class AlternatifController extends Controller
             $validatedData = $request->validate([
                 'kode' => ['required', 'unique:alternatifs'],
                 'nama' => 'required|max:255',
+                'nilai_alternatif' => 'required|array',
+                'nilai_alternatif.*' => 'required|numeric',
             ]);
 
-            Alternatif::create($validatedData);
+            // Buat alternatif baru
+            $alternatif = Alternatif::create([
+                'kode' => $validatedData['kode'],
+                'nama' => $validatedData['nama'],
+            ]);
 
-            return redirect('/dashboard/alternatif')->with('success', 'alternatif baru berhasil dibuat!');
+            // Simpan nilai alternatif terkait
+            foreach ($request->nilai_alternatif as $kriteriaId => $nilai) {
+                NilaiAlternatif::create([
+                    'alternatif_id' => $alternatif->id,
+                    'kriteria_id' => $kriteriaId,
+                    'nilai' => $nilai,
+                ]);
+            }
+
+            return redirect('/dashboard/alternatif')->with('success', 'Alternatif baru berhasil dibuat!');
         } catch (\Exception $e) {
             return redirect('/dashboard/alternatif')->with('error', 'Terjadi kesalahan saat membuat alternatif: ' . $e->getMessage());
         }
@@ -66,21 +92,30 @@ class AlternatifController extends Controller
     public function update(Request $request, Alternatif $alternatif)
     {
         try {
-            $rules = [
+            $validatedData = $request->validate([
+                'kode' => ['required', 'unique:alternatifs,kode,' . $alternatif->id],
                 'nama' => 'required|max:255',
-            ];
+                'nilai.*' => 'required|numeric'
+            ]);
 
-            if ($request->kode != $alternatif->kode) {
-                $rules['kode'] = ['required', 'unique:alternatifs'];
+            $alternatif->update([
+                'kode' => $validatedData['kode'],
+                'nama' => $validatedData['nama']
+            ]);
+
+            foreach ($request->nilai as $kriteriaId => $nilai) {
+                $nilaiAlternatif = NilaiAlternatif::where('alternatif_id', $alternatif->id)
+                    ->where('kriteria_id', $kriteriaId)
+                    ->first();
+
+                if ($nilaiAlternatif) {
+                    $nilaiAlternatif->update(['nilai' => $nilai]);
+                }
             }
 
-            $validatedData = $request->validate($rules);
-
-            Alternatif::where('id', $alternatif->id)->update($validatedData);
-
-            return redirect('/dashboard/alternatif')->with('success', 'alternatif berhasil diperbaharui!');
+            return redirect('/dashboard/alternatif')->with('success', 'Data alternatif berhasil diupdate!');
         } catch (\Exception $e) {
-            return redirect('/dashboard/alternatif')->with('error', 'Terjadi kesalahan saat memperbaharui alternatif: ' . $e->getMessage());
+            return redirect('/dashboard/alternatif')->with('error', 'Terjadi kesalahan saat mengupdate data alternatif: ' . $e->getMessage());
         }
     }
 
@@ -90,10 +125,15 @@ class AlternatifController extends Controller
     public function destroy(Alternatif $alternatif)
     {
         try {
-            Alternatif::destroy($alternatif->id);
-            return redirect('/dashboard/alternatif')->with('success', "alternatif $alternatif->nama berhasil dihapus!");
+            // Hapus semua nilai alternatif yang terkait dengan alternatif ini
+            $alternatif->NilaiAlternatif()->delete();
+
+            // Hapus alternatif itu sendiri
+            $alternatif->delete();
+
+            return redirect('/dashboard/alternatif')->with('success', "Alternatif $alternatif->nama berhasil dihapus!");
         } catch (\Illuminate\Database\QueryException $e) {
-            return redirect('/dashboard/alternatif')->with('failed', "alternatif $alternatif->nama tidak bisa dihapus karena sedang digunakan!");
+            return redirect('/dashboard/alternatif')->with('failed', "Alternatif $alternatif->nama tidak bisa dihapus karena sedang digunakan!");
         }
     }
 }

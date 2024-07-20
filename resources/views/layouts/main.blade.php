@@ -50,7 +50,7 @@
     <!-- Scripts -->
     @include('../layouts/partial/scripts')
 
-
+    @stack('script')
 </body>
 
 </html>

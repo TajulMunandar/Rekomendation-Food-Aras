@@ -40,6 +40,7 @@
                         <th>No</th>
                         <th>Kode</th>
                         <th>Nama</th>
+                        <th>Nilai Alternatif</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -49,6 +50,19 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $alternatif->kode }}</td>
                             <td>{{ $alternatif->nama }}</td>
+                            <td>
+                                @foreach ($alternatif->NilaiAlternatif as $nilaiAlternatif)
+                                    <div class="d-flex justify-content-between lh-1">
+                                        <div>
+                                            {{ $nilaiAlternatif->kriteria->nama }} :
+                                        </div>
+                                        <div>
+                                            {{ $nilaiAlternatif->nilai }}
+                                        </div>
+                                    </div>
+                                    <br>
+                                @endforeach
+                            </td>
                             <td>
                                 <button id="edit-button" class="btn btn-warning text-white" id="edit-button"
                                     data-bs-toggle="modal" data-bs-target="#editModal{{ $loop->iteration }}">
@@ -94,7 +108,7 @@
 
                         <div class="modal fade" id="editModal{{ $loop->iteration }}" tabindex="-1"
                             aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="exampleModalLabel">Edit Data Alternatif</h5>
@@ -119,7 +133,7 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label for="nama" class="form-label">Nama</label>
-                                                <input type="name"
+                                                <input type="text"
                                                     class="form-control @error('nama') is-invalid @enderror" id="nama"
                                                     name="nama" value="{{ old('nama', $alternatif->nama) }}">
                                                 @error('nama')
@@ -127,6 +141,27 @@
                                                         {{ $message }}
                                                     </div>
                                                 @enderror
+                                            </div>
+                                            <span class="fw-bold ">Nilai Alternatif</span>
+                                            <div class="row d-flex">
+                                                @foreach ($alternatif->NilaiAlternatif as $nilaiAlternatif)
+                                                    <div class="col col-4">
+                                                        <div class="mb-3">
+                                                            <label for="nilai_{{ $nilaiAlternatif->kriteria_id }}"
+                                                                class="form-label">{{ $nilaiAlternatif->kriteria->nama }}</label>
+                                                            <input type="number" step="0.01"
+                                                                class="form-control @error('nilai.' . $nilaiAlternatif->kriteria_id) is-invalid @enderror"
+                                                                id="nilai_{{ $nilaiAlternatif->kriteria_id }}"
+                                                                name="nilai[{{ $nilaiAlternatif->kriteria_id }}]"
+                                                                value="{{ old('nilai.' . $nilaiAlternatif->kriteria_id, $nilaiAlternatif->nilai) }}">
+                                                            @error('nilai.' . $nilaiAlternatif->kriteria_id)
+                                                                <div class="invalid-feedback">
+                                                                    {{ $message }}
+                                                                </div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -144,7 +179,7 @@
 
             <div class="modal fade" id="tambahModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                 aria-hidden="true">
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel">Add Data Alternatif</h5>
@@ -164,7 +199,7 @@
                                         </div>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label for="nama" class="form-label">Nama</label>
                                     <input type="name" class="form-control @error('nama') is-invalid @enderror"
                                         id="nama" name="nama">
@@ -173,6 +208,20 @@
                                             {{ $message }}
                                         </div>
                                     @enderror
+                                </div>
+                                <span class="fw-bold ">Nilai Alternatif</span>
+                                <div class="row d-flex">
+                                    @foreach ($kriteria as $k)
+                                        <div class="col col-4">
+                                            <div class="mb-3">
+                                                <label for="nilai-{{ $k->id }}"
+                                                    class="form-label">{{ $k->nama }}</label>
+                                                <input type="number" class="form-control"
+                                                    id="nilai-{{ $k->id }}"
+                                                    name="nilai_alternatif[{{ $k->id }}]">
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                             <div class="modal-footer">

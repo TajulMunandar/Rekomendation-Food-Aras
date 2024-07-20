@@ -16,11 +16,11 @@
              </li>
 
              <li class="nav-item">
-                 <a class="nav-link {{ request()->is('dashboard/nilai-alternatif') ? 'active' : '' }}"
-                     href="/dashboard/nilai-alternatif">
-                     <i data-feather="list" class="nav-icon icon-xs me-2">
+                 <a class="nav-link {{ request()->is('dashboard/alternatif') ? 'active' : '' }}"
+                     href="/dashboard/alternatif">
+                     <i data-feather="tag" class="nav-icon icon-xs me-2">
                      </i>
-                     Nilai Alternatif
+                     Alternatif
                  </a>
              </li>
              <li class="nav-item">
@@ -38,14 +38,7 @@
 
 
 
-             <li class="nav-item">
-                 <a class="nav-link {{ request()->is('dashboard/alternatif') ? 'active' : '' }}"
-                     href="/dashboard/alternatif">
-                     <i data-feather="tag" class="nav-icon icon-xs me-2">
-                     </i>
-                     Alternatif
-                 </a>
-             </li>
+
              <li class="nav-item">
                  <a class="nav-link {{ request()->is('dashboard/kriteria') ? 'active' : '' }}"
                      href="/dashboard/kriteria">

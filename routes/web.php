@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\AlternatifController;
+use App\Http\Controllers\ArasController;
 use App\Http\Controllers\NilaiAlternatifController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\RegisterController;
@@ -30,6 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('/alternatif', AlternatifController::class);
         Route::resource('/pasien', PasienController::class);
         Route::resource('/nilai-alternatif', NilaiAlternatifController::class);
+        Route::get('/aras', [ArasController::class, 'index']);
     });
 
     // logout
