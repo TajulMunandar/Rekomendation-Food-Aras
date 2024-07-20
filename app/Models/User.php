@@ -42,4 +42,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function Pasien()
+    {
+        return $this->hasMany(DataPasien::class, 'user_id', 'id');
+    }
 }

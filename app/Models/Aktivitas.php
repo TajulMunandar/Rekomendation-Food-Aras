@@ -12,4 +12,9 @@ class Aktivitas extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function Pasien()
+    {
+        return $this->hasMany(DataPasien::class, 'aktivitas_id', 'id');
+    }
 }

@@ -12,4 +12,13 @@ class NilaiAlternatif extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function Alternatif()
+    {
+        return $this->belongsTo(Alternatif::class, 'alternatif_id');
+    }
+    public function Kriteria()
+    {
+        return $this->belongsTo(Kriteria::class, 'kriteria_id');
+    }
 }

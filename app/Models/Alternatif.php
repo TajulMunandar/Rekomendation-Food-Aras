@@ -12,4 +12,9 @@ class Alternatif extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function NilaiAlternatif()
+    {
+        return $this->hasMany(NilaiAlternatif::class, 'alternatif_id', 'id');
+    }
 }
