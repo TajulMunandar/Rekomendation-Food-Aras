@@ -38,23 +38,19 @@
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>User</th>
-                        <th>Aktivitas</th>
-                        <th>Tinggi Badan</th>
-                        <th>Berat Badan</th>
-                        <th>Kolesterol</th>
+                        <th>Alternatif</th>
+                        <th>Kriteria</th>
+                        <th>Nilai</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($pasiens as $pasien)
+                    @foreach ($nilais as $nilai)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $pasien->User->name }}</td>
-                            <td>{{ $pasien->Aktivitas->nama }} - {{ $pasien->Aktivitas->nilai }}</td>
-                            <td>{{ $pasien->tb }}</td>
-                            <td>{{ $pasien->bb }}</td>
-                            <td>{{ $pasien->kolesterol }}</td>
+                            <td>{{ $nilai->Alternatif->kode }} - {{ $nilai->Alternatif->nama }}</td>
+                            <td>{{ $nilai->Kriteria->kode }} - {{ $nilai->Kriteria->nama }}</td>
+                            <td>{{ $nilai->nilai }}</td>
                             <td>
                                 <button id="edit-button" class="btn btn-warning text-white" id="edit-button"
                                     data-bs-toggle="modal" data-bs-target="#editModal{{ $loop->iteration }}">
@@ -73,18 +69,18 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Delete Data Pasien</h5>
+                                        <h5 class="modal-title" id="exampleModalLabel">Delete Data Kriteria</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
-                                    <form action="{{ route('pasien.destroy', $pasien->id) }}" method="POST"
+                                    <form action="{{ route('nilai-alternatif.destroy', $nilai->id) }}" method="POST"
                                         enctype="multipart/form-data">
                                         @method('delete')
                                         @csrf
                                         <div class="modal-body">
                                             <input type="hidden" name="id" value="">
                                             <p class="fs-5">Apakah anda yakin akan menghapus data
-                                                <b>{{ $pasien->User->name }} ?</b>
+                                                <b>{{ $nilai->Alternatif->kode }} - {{ $nilai->Alternatif->nama }} ?</b>
                                             </p>
                                         </div>
                                         <div class="modal-footer">
@@ -103,72 +99,50 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Edit Data Pasien</h5>
+                                        <h5 class="modal-title" id="exampleModalLabel">Edit Data Nilai Alternatif</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
-                                    <form action="{{ route('pasien.update', $pasien->id) }}" method="POST"
+                                    <form action="{{ route('nilai-alternatif.update', $nilai->id) }}" method="POST"
                                         enctype="multipart/form-data">
                                         @method('PUT')
                                         @csrf
                                         <div class="modal-body">
                                             <div class="mb-3">
-                                                <label for="user_id" class="form-label">User</label>
-                                                <select class="form-select" name="user_id" id="user_id">
-                                                    @foreach ($users as $user)
-                                                        @if (old('user_id', $pasien->user_id) == $user->id)
-                                                            <option value="{{ $user->id }}" selected>
-                                                                {{ $user->name }}</option>
+                                                <label for="alternatif_id" class="form-label">Alternatif</label>
+                                                <select class="form-select" name="alternatif_id" id="alternatif_id">
+                                                    @foreach ($alternatifs as $alternatif)
+                                                        @if (old('alternatif_id', $nilai->alternatif_id) == $alternatif->id)
+                                                            <option value="{{ $alternatif->id }}" selected>
+                                                                {{ $alternatif->kode }} - {{ $alternatif->nama }}</option>
                                                         @else
-                                                            <option value="{{ $user->id }}">
-                                                                {{ $user->name }}</option>
+                                                            <option value="{{ $alternatif->id }}">
+                                                                {{ $alternatif->kode }} - {{ $alternatif->nama }}</option>
                                                         @endif
                                                     @endforeach
                                                 </select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="aktivitas_id" class="form-label">Aktivitas</label>
-                                                <select class="form-select" name="aktivitas_id" id="aktivitas_id">
-                                                    @foreach ($aktivitases as $aktivitas)
-                                                        @if (old('aktivitas_id', $pasien->aktivitas_id) == $aktivitas->id)
-                                                            <option value="{{ $aktivitas->id }}" selected>
-                                                                {{ $aktivitas->nama }} - {{ $aktivitas->nilai }}</option>
+                                                <label for="kriteria_id" class="form-label">Aktivitas</label>
+                                                <select class="form-select" name="kriteria_id" id="kriteria_id">
+                                                    @foreach ($kriterias as $kriteria)
+                                                        @if (old('kriteria_id', $nilai->kriteria_id) == $kriteria->id)
+                                                            <option value="{{ $kriteria->id }}" selected>
+                                                                {{ $kriteria->kode }} - {{ $kriteria->nama }}</option>
                                                         @else
-                                                            <option value="{{ $aktivitas->id }}">
-                                                                {{ $aktivitas->nama }} - {{ $aktivitas->nilai }}</option>
+                                                            <option value="{{ $kriteria->id }}">
+                                                                {{ $kriteria->kode }} - {{ $kriteria->nama }}</option>
                                                         @endif
                                                     @endforeach
                                                 </select>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="tb" class="form-label">Tinggi Badan</label>
+                                                <label for="nilai" class="form-label">Nilai</label>
                                                 <input type="number"
-                                                    class="form-control @error('tb') is-invalid @enderror" id="tb"
-                                                    name="tb" value="{{ old('tb', $pasien->tb) }}">
-                                                @error('tb')
-                                                    <div class="invalid-feedback">
-                                                        {{ $message }}
-                                                    </div>
-                                                @enderror
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="bb" class="form-label">Berat Badan</label>
-                                                <input type="number"
-                                                    class="form-control @error('bb') is-invalid @enderror" id="bb"
-                                                    name="bb" value="{{ old('bb', $pasien->bb) }}">
-                                                @error('bb')
-                                                    <div class="invalid-feedback">
-                                                        {{ $message }}
-                                                    </div>
-                                                @enderror
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="kolesterol" class="form-label">Kolesterol</label>
-                                                <input type="number"
-                                                    class="form-control @error('kolesterol') is-invalid @enderror"
-                                                    id="kolesterol" name="kolesterol"
-                                                    value="{{ old('kolesterol', $pasien->kolesterol) }}">
-                                                @error('kolesterol')
+                                                    class="form-control @error('nilai') is-invalid @enderror"
+                                                    id="nilai" name="nilai"
+                                                    value="{{ old('nilai', $nilai->nilai) }}">
+                                                @error('nilai')
                                                     <div class="invalid-feedback">
                                                         {{ $message }}
                                                     </div>
@@ -197,52 +171,33 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                         </div>
-                        <form action="{{ route('pasien.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('nilai-alternatif.store') }}" method="POST"
+                            enctype="multipart/form-data">
                             @csrf
                             <div class="modal-body">
                                 <div class="mb-3">
-                                    <label for="user_id" class="form-label">User</label>
-                                    <select class="form-select" name="user_id" id="user_id">
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}">
-                                                {{ $user->name }}</option>
+                                    <label for="alternatif_id" class="form-label">Alternatif</label>
+                                    <select class="form-select" name="alternatif_id" id="alternatif_id">
+                                        @foreach ($alternatifs as $alternatif)
+                                            <option value="{{ $alternatif->id }}">
+                                                {{ $alternatif->kode }} - {{ $alternatif->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="aktivitas_id" class="form-label">Aktivitas</label>
-                                    <select class="form-select" name="aktivitas_id" id="aktivitas_id">
-                                        @foreach ($aktivitases as $aktivitas)
-                                            <option value="{{ $aktivitas->id }}">
-                                                {{ $aktivitas->nama }} - {{ $aktivitas->nilai }}</option>
+                                    <label for="kriteria_id" class="form-label">Aktivitas</label>
+                                    <select class="form-select" name="kriteria_id" id="kriteria_id">
+                                        @foreach ($kriterias as $kriteria)
+                                            <option value="{{ $kriteria->id }}">
+                                                {{ $kriteria->kode }} - {{ $kriteria->nama }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="tb" class="form-label">Tinggi Badan</label>
-                                    <input type="number" class="form-control @error('tb') is-invalid @enderror"
-                                        id="tb" name="tb">
-                                    @error('tb')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label for="bb" class="form-label">Berat Badan</label>
-                                    <input type="number" class="form-control @error('bb') is-invalid @enderror"
-                                        id="bb" name="bb">
-                                    @error('bb')
-                                        <div class="invalid-feedback">
-                                            {{ $message }}
-                                        </div>
-                                    @enderror
-                                </div>
-                                <div class="mb-3">
-                                    <label for="kolesterol" class="form-label">Kolesterol</label>
-                                    <input type="number" class="form-control @error('kolesterol') is-invalid @enderror"
-                                        id="kolesterol" name="kolesterol">
-                                    @error('kolesterol')
+                                    <label for="nilai" class="form-label">Nilai</label>
+                                    <input type="number" class="form-control @error('nilai') is-invalid @enderror"
+                                        id="nilai" name="nilai">
+                                    @error('nilai')
                                         <div class="invalid-feedback">
                                             {{ $message }}
                                         </div>

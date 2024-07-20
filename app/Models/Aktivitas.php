@@ -15,6 +15,6 @@ class Aktivitas extends Model
 
     public function Pasien()
     {
-        return $this->hasMany(DataPasien::class, 'aktivitas_id', 'id');
+        return $this->hasOne(DataPasien::class, 'aktivitas_id', 'id');
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('aktivitas_id')->constrained('aktivitas')->onDelete('restrict')->onUpdate('cascade');
             $table->tinyInteger('tb');
             $table->tinyInteger('bb');
-            $table->tinyInteger('kolesterol');
+            $table->integer('kolesterol');
             $table->timestamps();
         });
     }
