@@ -217,7 +217,7 @@
                                                 <label for="nilai-{{ $k->id }}"
                                                     class="form-label">{{ $k->nama }}</label>
                                                 <input type="number" class="form-control"
-                                                    id="nilai-{{ $k->id }}"
+                                                    id="nilai-{{ $k->id }}" step="0.01"
                                                     name="nilai_alternatif[{{ $k->id }}]">
                                             </div>
                                         </div>
