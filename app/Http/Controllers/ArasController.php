@@ -16,7 +16,7 @@ class ArasController extends Controller
         $kriteria = Kriteria::all();
         $alternatifs = Alternatif::all();
         $alternatifNilai = NilaiAlternatif::all();
-        $pasien = DataPasien::first(); // Ambil data pasien pertama sebagai contoh
+        $pasien = DataPasien::first();
 
         // Normalisasi Matriks Keputusan
         $normalizedMatrix = [];
