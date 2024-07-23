@@ -39,6 +39,7 @@
                         <th>Tinggi Badan</th>
                         <th>Berat Badan</th>
                         <th>Kolesterol</th>
+                        <th>Umur</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,6 +51,7 @@
                             <td>{{ $pasien->tb }}</td>
                             <td>{{ $pasien->bb }}</td>
                             <td>{{ $pasien->kolesterol }}</td>
+                            <td>{{ $pasien->umur }}</td>
                         </tr>
                     @endforeach
                 </tbody>

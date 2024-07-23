@@ -18,6 +18,7 @@ return new class extends Migration
             $table->tinyInteger('tb');
             $table->tinyInteger('bb');
             $table->integer('kolesterol');
+            $table->float('umur');
             $table->timestamps();
         });
     }
