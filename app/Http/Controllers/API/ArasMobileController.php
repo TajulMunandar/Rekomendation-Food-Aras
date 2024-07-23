@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Models\Alternatif;
 use App\Models\DataPasien;
 use App\Models\Kriteria;
 use App\Models\NilaiAlternatif;
+use App\Models\User;
 use Illuminate\Http\Request;
 
-class ArasController extends Controller
+class ArasMobileController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $title = "SPK ARAS";
+        $user = User::where('id', $request->id)->first();
+
         $kriteria = Kriteria::all();
         $alternatifs = Alternatif::all();
         $alternatifNilai = NilaiAlternatif::all();
-        $pasien = DataPasien::where('user_id', 2)->first();
+        $pasien = DataPasien::where('user_id', $user->id)->first();
 
         if ($pasien) {
             $tinggiBadan = $pasien->tb; // dalam cm
@@ -89,6 +92,22 @@ class ArasController extends Controller
             }
         }
 
-        return view('aras.index', compact('sortedAlternatifs', 'finalValues', 'title', 'pasien'));
+
+        $top5Alternatifs = array_slice($sortedAlternatifs, 0, 5);
+        $top5Values = array_slice($finalValues, 0, 5, true);
+
+        $formattedValues = array_map(function ($value) {
+            return number_format($value, 2);
+        }, $top5Values);
+
+        $combinedResults = [];
+        foreach ($top5Alternatifs as $alternatif) {
+            $combinedResults[] = [
+                'alternatif' => $alternatif,
+                'value' => $formattedValues[$alternatif->id],
+            ];
+        }
+
+        return response()->json(['data' => $combinedResults], 200);
     }
 }
