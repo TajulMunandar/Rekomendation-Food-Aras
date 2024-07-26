@@ -9,6 +9,7 @@ use App\Models\Kriteria;
 use App\Models\NilaiAlternatif;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ArasMobileController extends Controller
 {
@@ -38,30 +39,127 @@ class ArasMobileController extends Controller
 
             // Tambahkan hasil kalori ke data pasien
             $pasien->kalori = $fisik;
+            $kolesterolPasien = $pasien->kolesterol;
         }
+
+        $decisionMatrix = [];
+        foreach ($alternatifs as $alternatif) {
+            foreach ($kriteria as $k) {
+                $nilaiAlternatif = $alternatifNilai->where('alternatif_id', $alternatif->id)
+                    ->where('kriteria_id', $k->id)
+                    ->first();
+                if ($nilaiAlternatif) {
+                    $decisionMatrix[$alternatif->id][$k->id] = $nilaiAlternatif->nilai;
+                } else {
+                    $decisionMatrix[$alternatif->id][$k->id] = 0; // Atau nilai default lainnya
+                }
+            }
+        }
+
+        // Tambahkan alternatif dengan ID 0
+        $alternatifZero = [
+            'id' => 0,
+            'nama' => 'Alternatif 0',
+        ];
+
+        // Tambahkan alternatif baru ke koleksi alternatif
+        $alternatifs->prepend($alternatifZero);
+
+        // Tetapkan nilai maksimum atau minimum untuk setiap kriteria
+        foreach ($kriteria as $k) {
+            $nilaiKriteria = $alternatifNilai->where('kriteria_id', $k->id)->pluck('nilai');
+            $max = $nilaiKriteria->max();
+            $min = $nilaiKriteria->min();
+
+            if ($k->atribut == 'benefit') {
+                $decisionMatrix[0][$k->id] = $max; // Nilai maksimum untuk kriteria tipe benefit
+            } else {
+                $decisionMatrix[0][$k->id] = $min; // Nilai minimum untuk kriteria tipe cost
+            }
+        }
+
+        ksort($decisionMatrix);
 
 
         // Normalisasi Matriks Keputusan
         $normalizedMatrix = [];
+        $inverseCostValues = [];
         foreach ($kriteria as $k) {
-            $nilaiKriteria = $alternatifNilai->where('kriteria_id', $k->id)->pluck('nilai');
+            $sumBenefit = 0;
+            $sumCost = 0;
 
-            $max = $nilaiKriteria->max();
-            $min = $nilaiKriteria->min();
-
-            foreach ($alternatifNilai->where('kriteria_id', $k->id) as $n) {
-                if ($k->atribut == 'benefit') {
-                    $normalizedMatrix[$n->alternatif_id][$n->kriteria_id] = $max != 0 ? $n->nilai / $max : 0;
-                } else { // Cost
-                    $normalizedMatrix[$n->alternatif_id][$n->kriteria_id] = $n->nilai != 0 ? $min / $n->nilai : 0;
+            foreach ($decisionMatrix as $altId => $nilaiKriteria) {
+                if (isset($nilaiKriteria[$k->id])) {
+                    if ($k->atribut == 'benefit') {
+                        $sumBenefit += $nilaiKriteria[$k->id];
+                    } else {
+                        $inverseValue = $nilaiKriteria[$k->id] != 0
+                            ? 1 / $nilaiKriteria[$k->id]
+                            : 0; // Jika nilai kriteria 0, simpan 0
+                        $inverseCostValues[$altId][$k->id] = $inverseValue; // Simpan invers ke array
+                    }
                 }
             }
 
-            if ($k->nama == 'Kalori') {
-                // Tambahkan nilai kalori pasien ke normalizedMatrix untuk pasien
-                $normalizedMatrix[$pasien->id][$k->id] = $pasien->kalori != 0 ? $min / $pasien->kalori : 0;
+
+            if ($k->atribut == 'cost') {
+                $sumCost = array_sum(array_column($inverseCostValues, $k->id));
+            }
+
+            foreach ($decisionMatrix as $altId => $nilaiKriteria) {
+                if (isset($nilaiKriteria[$k->id])) {
+                    if ($k->atribut == 'benefit') {
+                        $normalizedMatrix[$altId][$k->id] = $nilaiKriteria[$k->id] / $sumBenefit;
+                    } else {
+                        $normalizedMatrix[$altId][$k->id] = $sumCost != 0 ? $inverseCostValues[$altId][$k->id] / $sumCost : 0;
+                    }
+                }
             }
         }
+
+        // Debug output untuk memastikan data benar
+        if (!empty($normalizedMatrix)) {
+            // Pastikan pasien tidak kosong dan memiliki nilai kalori
+            if (isset($kalori)) {
+                // Iterasi melalui setiap elemen di normalizedMatrix
+                foreach ($normalizedMatrix as $key => $element) {
+                    // Ambil key dari elemen pertama
+                    $firstKey = array_key_first($element);
+                    // Ambil nilai pertama dan bagi dengan kalori pasien
+                    $normalizedMatrix[$key][$firstKey] = $element[$firstKey] / $kalori;
+                }
+
+                // Tampilkan hasilnya
+                // dd($normalizedMatrix);
+            } else {
+                echo "Kalori pasien tidak ditemukan.";
+            }
+        } else {
+            echo "normalizedMatrix kosong.";
+        }
+
+        if (!empty($normalizedMatrix)) {
+            // Pastikan pasien tidak kosong dan memiliki nilai kalori
+            // Iterasi melalui setiap elemen di normalizedMatrix
+            foreach ($normalizedMatrix as $key => $element) {
+                // Periksa apakah indeks ke-2 ada dalam elemen
+                $values = array_values($element);
+
+                if (isset($values[1])) {
+                    // Ambil nilai kolesterol alternatif
+                    $cholesterolAlternatif = $values[1];
+                    $elementKeys = array_keys($element); // Dapatkan key asli dari elemen
+                    $originalKey = $elementKeys[1];
+                    // Bagi nilai kolesterol alternatif dengan kolesterol pasien
+                    $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0
+                        ? $cholesterolAlternatif / $kolesterolPasien
+                        : 0;
+                }
+            }
+        } else {
+            echo "normalizedMatrix kosong.";
+        }
+
 
         // Pembobotan Matriks Keputusan
         $weightedMatrix = [];
@@ -74,39 +172,68 @@ class ArasMobileController extends Controller
             }
         }
 
+
         // Menghitung Nilai Akhir
         $finalValues = [];
         foreach ($weightedMatrix as $altId => $nilaiKriteria) {
             $finalValues[$altId] = array_sum($nilaiKriteria);
         }
 
-        // Mengurutkan Alternatif Berdasarkan Nilai Akhir
-        arsort($finalValues);
+        Log::info('Final Values:', ['finalValues' => $finalValues]);
 
-        // Mengambil alternatif berdasarkan urutan nilai akhir
-        $sortedAlternatifs = [];
+        $utilityRelatif = [];
+        $alternatifZeroValue = $finalValues[0];
+
         foreach ($finalValues as $altId => $value) {
-            $alternatif = $alternatifs->find($altId);
+            if ($altId != 0) { // Mengabaikan alternatif 0
+                $utilityRelatif[$altId] = $alternatifZeroValue != 0 ? $value / $alternatifZeroValue : 0;
+            }
+        }
+
+        Log::info('Utility Relatif:', ['utilityRelatif' => $utilityRelatif]);
+
+        // Mengurutkan Alternatif Berdasarkan Nilai Akhir
+        arsort($utilityRelatif);
+
+        // Mengambil alternatif berdasarkan urutan utility relatif
+        $sortedAlternatifs = [];
+        foreach ($utilityRelatif as $altId => $value) {
+            $alternatif = $alternatifs->where('id', $altId)->first();
             if ($alternatif) {
                 $sortedAlternatifs[] = $alternatif;
             }
         }
 
-
         $top5Alternatifs = array_slice($sortedAlternatifs, 0, 5);
         $top5Values = array_slice($finalValues, 0, 5, true);
 
+        Log::info('Final Values:', ['finalValues' => $finalValues]);
+        Log::info('Utility Relatif:', ['utilityRelatif' => $utilityRelatif]);
+
         $formattedValues = array_map(function ($value) {
             return number_format($value, 2);
-        }, $top5Values);
+        }, $finalValues);
+
+        Log::info('Formatted Values:', ['formattedValues' => $formattedValues]);
 
         $combinedResults = [];
+        Log::info('Formatted Values:', ['formattedValues' => $formattedValues]);
         foreach ($top5Alternatifs as $alternatif) {
-            $combinedResults[] = [
-                'alternatif' => $alternatif,
-                'value' => $formattedValues[$alternatif->id],
-            ];
+            $id = intval($alternatif->id); // Convert ID to integer
+            if (isset($formattedValues[$id])) {
+                $combinedResults[] = [
+                    'alternatif' => $alternatif,
+                    'value' => $formattedValues[$id],
+                ];
+            } else {
+                // Handle the case where the ID is not found in formattedValues
+                Log::warning("ID not found in formattedValues: ", ['id' => $id]);
+            }
         }
+
+        // dd($combinedResults);
+
+
 
         return response()->json(['data' => $combinedResults], 200);
     }
