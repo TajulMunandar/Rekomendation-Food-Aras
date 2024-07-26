@@ -204,7 +204,7 @@ class ArasMobileController extends Controller
             }
         }
 
-        $top5Alternatifs = array_slice($sortedAlternatifs, 0, 5);
+        $top5Alternatifs = array_slice($sortedAlternatifs, 0, 6);
         $top5Values = array_slice($finalValues, 0, 5, true);
 
         Log::info('Final Values:', ['finalValues' => $finalValues]);
