@@ -113,6 +113,8 @@ class ArasController extends Controller
             }
         }
 
+
+
         // Debug output untuk memastikan data benar
         if (!empty($normalizedMatrix)) {
             // Pastikan pasien tidak kosong dan memiliki nilai kalori
@@ -156,6 +158,7 @@ class ArasController extends Controller
             echo "normalizedMatrix kosong.";
         }
 
+        dd($normalizedMatrix);
 
         // Pembobotan Matriks Keputusan
         $weightedMatrix = [];
@@ -167,7 +170,6 @@ class ArasController extends Controller
                 }
             }
         }
-
 
         // Menghitung Nilai Akhir
         $finalValues = [];
