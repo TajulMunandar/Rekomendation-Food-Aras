@@ -233,8 +233,6 @@ class ArasMobileController extends Controller
 
         // dd($combinedResults);
 
-
-
         return response()->json(['data' => $combinedResults], 200);
     }
 }

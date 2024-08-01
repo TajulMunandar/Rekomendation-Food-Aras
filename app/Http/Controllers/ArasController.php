@@ -16,7 +16,8 @@ class ArasController extends Controller
         $kriteria = Kriteria::all();
         $alternatifs = Alternatif::all();
         $alternatifNilai = NilaiAlternatif::all();
-        $pasien = DataPasien::where('user_id', 1)->first();
+        $user = auth()->user()->id;
+        $pasien = DataPasien::where('user_id', $user)->first();
 
         if ($pasien) {
             $tinggiBadan = $pasien->tb; // dalam cm
@@ -38,6 +39,7 @@ class ArasController extends Controller
             $kolesterolPasien = $pasien->kolesterol;
         }
 
+        // Decision Matrix
         $decisionMatrix = [];
         foreach ($alternatifs as $alternatif) {
             foreach ($kriteria as $k) {
@@ -76,7 +78,6 @@ class ArasController extends Controller
 
         ksort($decisionMatrix);
 
-
         // Normalisasi Matriks Keputusan
         $normalizedMatrix = [];
         $inverseCostValues = [];
@@ -89,14 +90,11 @@ class ArasController extends Controller
                     if ($k->atribut == 'benefit') {
                         $sumBenefit += $nilaiKriteria[$k->id];
                     } else {
-                        $inverseValue = $nilaiKriteria[$k->id] != 0
-                            ? 1 / $nilaiKriteria[$k->id]
-                            : 0; // Jika nilai kriteria 0, simpan 0
+                        $inverseValue = $nilaiKriteria[$k->id] != 0 ? 1 / $nilaiKriteria[$k->id] : 0; // Jika nilai kriteria 0, simpan 0
                         $inverseCostValues[$altId][$k->id] = $inverseValue; // Simpan invers ke array
                     }
                 }
             }
-
 
             if ($k->atribut == 'cost') {
                 $sumCost = array_sum(array_column($inverseCostValues, $k->id));
@@ -113,58 +111,32 @@ class ArasController extends Controller
             }
         }
 
-
-
-        // Debug output untuk memastikan data benar
-        if (!empty($normalizedMatrix)) {
-            // Pastikan pasien tidak kosong dan memiliki nilai kalori
-            if (isset($kalori)) {
-                // Iterasi melalui setiap elemen di normalizedMatrix
-                foreach ($normalizedMatrix as $key => $element) {
-                    // Ambil key dari elemen pertama
-                    $firstKey = array_key_first($element);
-                    // Ambil nilai pertama dan bagi dengan kalori pasien
-                    $normalizedMatrix[$key][$firstKey] = $element[$firstKey] / $kalori;
-                }
-
-                // Tampilkan hasilnya
-                // dd($normalizedMatrix);
-            } else {
-                echo "Kalori pasien tidak ditemukan.";
+        // Adjust normalized matrix with kalori
+        if (!empty($normalizedMatrix) && isset($kalori)) {
+            foreach ($normalizedMatrix as $key => $element) {
+                $firstKey = array_key_first($element);
+                $normalizedMatrix[$key][$firstKey] = $element[$firstKey] / $kalori;
             }
-        } else {
-            echo "normalizedMatrix kosong.";
         }
 
-        if (!empty($normalizedMatrix)) {
-            // Pastikan pasien tidak kosong dan memiliki nilai kalori
-            // Iterasi melalui setiap elemen di normalizedMatrix
+        // Adjust normalized matrix with kolesterol
+        if (!empty($normalizedMatrix) && isset($kolesterolPasien)) {
             foreach ($normalizedMatrix as $key => $element) {
-                // Periksa apakah indeks ke-2 ada dalam elemen
                 $values = array_values($element);
 
                 if (isset($values[1])) {
-                    // Ambil nilai kolesterol alternatif
                     $cholesterolAlternatif = $values[1];
                     $elementKeys = array_keys($element); // Dapatkan key asli dari elemen
                     $originalKey = $elementKeys[1];
-                    // Bagi nilai kolesterol alternatif dengan kolesterol pasien
-                    $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0
-                        ? $cholesterolAlternatif / $kolesterolPasien
-                        : 0;
+                    $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0 ? $cholesterolAlternatif / $kolesterolPasien : 0;
                 }
             }
-        } else {
-            echo "normalizedMatrix kosong.";
         }
-
-        dd($normalizedMatrix);
 
         // Pembobotan Matriks Keputusan
         $weightedMatrix = [];
         foreach ($kriteria as $k) {
             foreach ($normalizedMatrix as $altId => $nilaiKriteria) {
-                // Cek jika k->id ada di nilaiKriteria
                 if (isset($nilaiKriteria[$k->id])) {
                     $weightedMatrix[$altId][$k->id] = $nilaiKriteria[$k->id] * $k->bobot;
                 }
@@ -179,8 +151,6 @@ class ArasController extends Controller
 
         $utilityRelatif = [];
         $alternatifZeroValue = $finalValues[0];
-
-
 
         foreach ($finalValues as $altId => $value) {
             if ($altId != 0) { // Mengabaikan alternatif 0
@@ -200,6 +170,16 @@ class ArasController extends Controller
             }
         }
 
-        return view('aras.index', compact('sortedAlternatifs', 'finalValues', 'title', 'pasien'));
+        return view('aras.index', compact(
+            'title',
+            'kriteria',
+            'alternatifs',
+            'decisionMatrix',
+            'normalizedMatrix',
+            'weightedMatrix',
+            'finalValues',
+            'sortedAlternatifs',
+            'pasien'
+        ));
     }
 }

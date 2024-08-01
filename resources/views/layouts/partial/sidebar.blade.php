@@ -16,6 +16,13 @@
              </li>
 
              <li class="nav-item">
+                 <a class="nav-link {{ request()->is('dashboard/aras') ? 'active' : '' }}" href="/dashboard/aras">
+                     <i data-feather="tag" class="nav-icon icon-xs me-2">
+                     </i>
+                     Aras
+                 </a>
+             </li>
+             <li class="nav-item">
                  <a class="nav-link {{ request()->is('dashboard/alternatif') ? 'active' : '' }}"
                      href="/dashboard/alternatif">
                      <i data-feather="tag" class="nav-icon icon-xs me-2">
