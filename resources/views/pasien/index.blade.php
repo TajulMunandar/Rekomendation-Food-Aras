@@ -40,6 +40,9 @@
                         <th>Berat Badan</th>
                         <th>Kolesterol</th>
                         <th>Umur</th>
+                        <th>Protein</th>
+                        <th>Lemak</th>
+                        <th>Serat</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,6 +55,9 @@
                             <td>{{ $pasien->bb }}</td>
                             <td>{{ $pasien->kolesterol }}</td>
                             <td>{{ $pasien->umur }}</td>
+                            <td>{{ $pasien->protein }}</td>
+                            <td>{{ $pasien->lemak }}</td>
+                            <td>{{ $pasien->serat }}</td>
                         </tr>
                     @endforeach
                 </tbody>

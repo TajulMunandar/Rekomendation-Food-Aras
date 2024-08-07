@@ -112,10 +112,10 @@ class ArasController extends Controller
         }
 
         // Adjust normalized matrix with kalori
-        if (!empty($normalizedMatrix) && isset($kalori)) {
+        if (!empty($normalizedMatrix) && isset($pasien->kalori)) {
             foreach ($normalizedMatrix as $key => $element) {
                 $firstKey = array_key_first($element);
-                $normalizedMatrix[$key][$firstKey] = $element[$firstKey] / $kalori;
+                $normalizedMatrix[$key][$firstKey] = $element[$firstKey] / $pasien->kalori;
             }
         }
 
@@ -123,12 +123,47 @@ class ArasController extends Controller
         if (!empty($normalizedMatrix) && isset($kolesterolPasien)) {
             foreach ($normalizedMatrix as $key => $element) {
                 $values = array_values($element);
-
                 if (isset($values[1])) {
                     $cholesterolAlternatif = $values[1];
                     $elementKeys = array_keys($element); // Dapatkan key asli dari elemen
                     $originalKey = $elementKeys[1];
                     $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0 ? $cholesterolAlternatif / $kolesterolPasien : 0;
+                }
+            }
+        }
+
+        if (!empty($normalizedMatrix) && isset($pasien->lemak)) {
+            foreach ($normalizedMatrix as $key => $element) {
+                $values = array_values($element);
+                if (isset($values[2])) {
+                    $cholesterolAlternatif = $values[2];
+                    $elementKeys = array_keys($element); // Dapatkan key asli dari elemen
+                    $originalKey = $elementKeys[2];
+                    $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0 ? $cholesterolAlternatif / $pasien->lemak : 0;
+                }
+            }
+        }
+
+        if (!empty($normalizedMatrix) && isset($pasien->serat)) {
+            foreach ($normalizedMatrix as $key => $element) {
+                $values = array_values($element);
+                if (isset($values[3])) {
+                    $cholesterolAlternatif = $values[3];
+                    $elementKeys = array_keys($element); // Dapatkan key asli dari elemen
+                    $originalKey = $elementKeys[3];
+                    $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0 ? $cholesterolAlternatif / $pasien->serat : 0;
+                }
+            }
+        }
+
+        if (!empty($normalizedMatrix) && isset($pasien->protein)) {
+            foreach ($normalizedMatrix as $key => $element) {
+                $values = array_values($element);
+                if (isset($values[4])) {
+                    $cholesterolAlternatif = $values[4];
+                    $elementKeys = array_keys($element); // Dapatkan key asli dari elemen
+                    $originalKey = $elementKeys[4];
+                    $normalizedMatrix[$key][$originalKey] = $cholesterolAlternatif != 0 ? $cholesterolAlternatif / $pasien->protein : 0;
                 }
             }
         }
