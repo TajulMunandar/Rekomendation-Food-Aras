@@ -20,6 +20,9 @@ class ProfileMobileController extends Controller
                 'bb' => 'required|integer',
                 'kolesterol' => 'required|integer',
                 'umur' => 'required|integer',
+                'lemak' => 'required|numeric',
+                'serat' => 'required|numeric',
+                'protein' => 'required|numeric',
             ]);
 
             $userId = $request->id;
@@ -37,6 +40,9 @@ class ProfileMobileController extends Controller
                 'bb' => $validatedData['bb'],
                 'kolesterol' => $validatedData['kolesterol'],
                 'umur' => $validatedData['umur'],
+                'serat' => $validatedData['serat'],
+                'protein' => $validatedData['protein'],
+                'lemak' => $validatedData['lemak'],
             ]);
 
             return response()->json(['message' => 'Profile updated successfully'], 200);

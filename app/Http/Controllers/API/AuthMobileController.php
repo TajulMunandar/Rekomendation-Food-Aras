@@ -48,6 +48,9 @@ class AuthMobileController extends Controller
                 'bb' => 'required|numeric',
                 'kolesterol' => 'required|numeric',
                 'umur' => 'required|integer',
+                'lemak' => 'required|numeric',
+                'serat' => 'required|numeric',
+                'protein' => 'required|numeric',
             ]);
 
             // Create new user
@@ -67,6 +70,9 @@ class AuthMobileController extends Controller
                 'bb' => $validatedData['bb'],
                 'kolesterol' => $validatedData['kolesterol'],
                 'umur' => $validatedData['umur'],
+                'serat' => $validatedData['serat'],
+                'protein' => $validatedData['protein'],
+                'lemak' => $validatedData['lemak'],
             ]);
 
             // Generate token

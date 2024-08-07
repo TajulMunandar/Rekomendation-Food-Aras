@@ -17,7 +17,7 @@
 
              <li class="nav-item">
                  <a class="nav-link {{ request()->is('dashboard/aras') ? 'active' : '' }}" href="/dashboard/aras">
-                     <i data-feather="tag" class="nav-icon icon-xs me-2">
+                     <i data-feather="activity" class="nav-icon icon-xs me-2">
                      </i>
                      Aras
                  </a>

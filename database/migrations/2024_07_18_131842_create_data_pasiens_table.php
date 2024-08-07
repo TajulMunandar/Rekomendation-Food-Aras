@@ -18,7 +18,10 @@ return new class extends Migration
             $table->tinyInteger('tb');
             $table->tinyInteger('bb');
             $table->integer('kolesterol');
-            $table->float('umur');
+            $table->integer('umur');
+            $table->double('lemak');
+            $table->float('serat');
+            $table->float('protein');
             $table->timestamps();
         });
     }

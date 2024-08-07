@@ -207,18 +207,15 @@ class ArasMobileController extends Controller
         $top5Alternatifs = array_slice($sortedAlternatifs, 0, 6);
         $top5Values = array_slice($finalValues, 0, 5, true);
 
-        Log::info('Final Values:', ['finalValues' => $finalValues]);
-        Log::info('Utility Relatif:', ['utilityRelatif' => $utilityRelatif]);
-
         $formattedValues = array_map(function ($value) {
-            return number_format($value, 2);
+            return number_format($value, 16);
         }, $finalValues);
 
         Log::info('Formatted Values:', ['formattedValues' => $formattedValues]);
 
         $combinedResults = [];
         Log::info('Formatted Values:', ['formattedValues' => $formattedValues]);
-        foreach ($top5Alternatifs as $alternatif) {
+        foreach ($sortedAlternatifs as $alternatif) {
             $id = intval($alternatif->id); // Convert ID to integer
             if (isset($formattedValues[$id])) {
                 $combinedResults[] = [

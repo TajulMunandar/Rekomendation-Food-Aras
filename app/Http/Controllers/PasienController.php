@@ -42,6 +42,9 @@ class PasienController extends Controller
                 'tb' => 'required|numeric',
                 'bb' => 'required|numeric',
                 'kolesterol' => 'required|numeric',
+                'lemak' => 'required|numeric',
+                'serat' => 'required|numeric',
+                'protein' => 'required|numeric',
             ]);
 
             DataPasien::create($validatedData);
@@ -80,6 +83,9 @@ class PasienController extends Controller
                 'tb' => 'required|numeric',
                 'bb' => 'required|numeric',
                 'kolesterol' => 'required|numeric',
+                'lemak' => 'required|numeric',
+                'serat' => 'required|numeric',
+                'protein' => 'required|numeric',
             ];
 
             $validatedData = $request->validate($rules);
