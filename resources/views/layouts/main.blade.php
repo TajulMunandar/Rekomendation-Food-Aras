@@ -51,6 +51,7 @@
     @include('../layouts/partial/scripts')
 
     @stack('script')
+    @yield('js')
 </body>
 
 </html>

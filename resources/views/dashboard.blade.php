@@ -7,7 +7,7 @@
             <div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="mb-2 mb-lg-0">
-                        <h3 class="mb-0 text-dark">{{ $title }}</h3>
+                        <h2 class="mb-0 text-dark">{{ $title }}</h2>
                     </div>
                 </div>
             </div>
@@ -98,4 +98,61 @@
             </div>
         </div>
     </div>
+
+    <h2>Grafik Traffic</h2>
+    <div class="card">
+        <div class="card-body">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+@endsection
+
+@section('js')
+    <script>
+        const ctx = document.getElementById('myChart');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartLabels) !!},
+                datasets: [{
+                    label: 'Traffic',
+                    borderColor: "#8f44fd",
+                    backgroundColor: "#8f44fd",
+                    data: {!! json_encode($chartData) !!},
+                    fill: true,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        suggestedMin: 0,
+                        suggestedMax: 50,
+                        grid: {
+                            display: true,
+                            drawBorder: true,
+                            drawOnChartArea: true,
+                            drawTicks: true,
+                            color: "rgba(255, 255, 255, 0.08)",
+                            borderColor: "transparent",
+                            borderDash: [5, 5],
+                            borderDashOffset: 2,
+                            tickColor: "transparent"
+                        },
+                        beginAtZero: true
+                    }
+                },
+                tension: 0.3,
+                elements: {
+                    point: {
+                        radius: 8,
+                        hoverRadius: 12,
+                        backgroundColor: "#9BD0F5",
+                        borderWidth: 0,
+                    },
+                },
+            }
+        });
+    </script>
 @endsection

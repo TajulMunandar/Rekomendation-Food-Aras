@@ -2,6 +2,10 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous">
 </script>
+
+{{-- chart --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery-slimscroll@1.3.8/jquery.slimscroll.min.js"></script>
 <script src="https://unpkg.com/feather-icons"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
@@ -13,6 +17,9 @@
 
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+{{--  HighChart JS  --}}
+<script src="https://code.highcharts.com/highcharts.js"></script>
 
 {{-- lottie icon --}}
 <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
